@@ -1,0 +1,1 @@
+Text file containing confidential data and credentials for testing purposes
