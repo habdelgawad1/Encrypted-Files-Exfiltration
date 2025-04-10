@@ -82,7 +82,7 @@ print(f"Private key (d, n): ({d}, {n})")
 
 
 # Step 2: Read 16 bytes from AES.txt
-aes_key_file = "AES.txt"
+aes_key_file = "AES_key.txt"
 with open(aes_key_file, "rb") as f:
     aes_key = f.read(16)
 
