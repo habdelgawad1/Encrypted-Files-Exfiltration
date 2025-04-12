@@ -1,6 +1,5 @@
 import random
 import math
-import os
 
 def is_prime(num):
     if num < 2:
@@ -44,7 +43,7 @@ def generate_keys():
     d = eed(e, phi)
     return (e, d, n)
 
-def write_keys(e, d, n, filename="rsa_keys.txt"):
+def write_rsa_keys(e, d, n, filename="rsa_keys.txt"):
     """Saves RSA keys to a file for later use."""
     with open(filename, "w") as f:
         f.write(f"Public Key (e, n): {e}, {n}\n")
@@ -63,40 +62,5 @@ def load_rsa_keys(filename="rsa_keys.txt"):
             private_key_line = lines[1].strip()
             d_str, n_str = private_key_line.split(":")[1].split(",")
             d = int(d_str.strip())
-            n_priv = int(n_str.strip())
             
             return (e, d, n)
-   
-
-def rsa_encrypt_bytes(byte_data, e, n):
-    """Encrypts each byte of data using RSA"""
-    return [(b ** e) % n for b in byte_data]
-
-def rsa_decrypt_bytes(encrypted_data, d, n):
-    return bytes([(c ** d) % n for c in encrypted_data])
-
-# Step 1: Generate RSA key pair
-e, d, n = generate_keys()
-print(f"Public key (e, n): ({e}, {n})")
-print(f"Private key (d, n): ({d}, {n})")
-
-
-# Step 2: Read 16 bytes from AES.txt
-aes_key_file = "AES_key.txt"
-with open(aes_key_file, "rb") as f:
-    aes_key = f.read(16)
-
-if len(aes_key) != 16:
-    raise ValueError("File must contain exactly 16 bytes for AES-128 key.")
-
-print(f"\nOriginal AES Key (hex): {aes_key.hex()}")
-
-# Step 3: Encrypt AES key using RSA
-encrypted_key = rsa_encrypt_bytes(aes_key, e, n)
-
-# Step 4: Save encrypted key to AES_key.txt.enc
-with open("AES_key.txt.enc", "w") as f:
-    for value in encrypted_key:
-        f.write(str(value) + "\n")
-
-print("\n🔐 AES key encrypted and saved to AES_key.txt.enc")
