@@ -17,4 +17,4 @@ def load_aes_key(filename="/home/hgawad/Desktop/coursework/aes_key.txt"):
 
 key = generate_key()
 write_aes_key(key)
-print(f"Generated Key: {key}")
+print(f"Generated Key: {key}") 
