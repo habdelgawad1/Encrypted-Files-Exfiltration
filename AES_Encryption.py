@@ -1,30 +1,42 @@
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import padding
-from AES_Key_Generation import load_key_and_iv
+import base64
 
-def encrypt_file(file_path, key, iv):
-    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-    encryptor = cipher.encryptor()
+def pad(data, block_size=16):
+    padding_len = block_size - (len(data) % block_size)
+    return data + bytes([padding_len] * padding_len)
 
-    with open(file_path, 'rb') as f:
+def encrypt_block(block, key):
+    encrypted = bytearray(len(block))
+    for i in range(len(block)):
+        encrypted[i] = block[i] ^ key[i % len(key)]  
+    return encrypted
+
+def encrypt_file(key, input_file, output_file):
+    with open(input_file, "rb") as f:
         plaintext = f.read()
+    padded_plaintext = pad(plaintext)
+    ciphertext = bytearray()
+    for i in range(0, len(padded_plaintext), 16):
+        block = padded_plaintext[i:i + 16]
+        encrypted_block = encrypt_block(block, key)
+        ciphertext.extend(encrypted_block)
+    with open(output_file, "wb") as f:
+        f.write(ciphertext)
 
-    padder = padding.PKCS7(algorithms.AES.block_size).padder()
-    padded_data = padder.update(plaintext) + padder.finalize()
-    ciphertext = encryptor.update(padded_data) + encryptor.finalize()
+def load_aes_key(filename="/home/hgawad/Desktop/coursework/aes_key.txt"):
+    with open(filename, "r") as key_file:
+        key = key_file.read().strip()
+    return key
+    
+files_log = r"/home/hgawad/Desktop/coursework/files.log"
+encrypted_files_log = r"/home/hgawad/Desktop/coursework/encrypted_files.log"
+key = base64.b64decode(load_aes_key())  
 
-    with open(r"/home/hgawad/Desktop/coursework/encrypted_files.log", 'wb') as f:
-        f.write(ciphertext + ".enc")
-
-def encrypt_files_from_list(file_list_path,key,iv):
-    with open(file_list_path, "r") as f:
-        files = [line.strip() for line in f if line.strip()]
-        
-    for file_path in files:
-            encrypt_file(file_path, key, iv)
+with open(encrypted_files_log, "w") as encrypted_log:
+    with open(files_log, "r") as log:
+        for line in log:
+            file_path = line.strip()
+            encrypted_file_path = file_path + ".enc"
+            encrypt_file(key, file_path, encrypted_file_path)
+            encrypted_log.write(encrypted_file_path + "\n")
             
-    print(f"Encryption completed for files listed in {file_list_path}")
-
-key, iv = load_key_and_iv(r"/home/hgawad/Desktop/coursework/aes_key.txt")
-encrypt_files_from_list(r"/home/hgawad/Desktop/coursework/files.log", key, iv)
+print("AES Encryption Done Successfully")

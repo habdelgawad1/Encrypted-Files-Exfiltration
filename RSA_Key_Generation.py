@@ -64,3 +64,7 @@ def load_rsa_keys(filename="rsa_keys.txt"):
             d = int(d_str.strip())
             
             return (e, d, n)
+            
+e,d,n = generate_keys()
+print(f"Generated Keys: {e}, {d}, {n}")
+write_rsa_keys(e, d, n)

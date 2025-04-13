@@ -1,32 +1,45 @@
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import padding
-from AES_Key_Generation import load_key_and_iv
-import os
+import base64
 
-def decrypt_file(file_path, key, iv):
-    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-    decryptor = cipher.decryptor()
+def unpad(padded_data):
+    padding_len = padded_data[-1]
+    return padded_data[:-padding_len]
 
-    with open(file_path, 'rb') as f:
+def decrypt_block(block, key):
+    decrypted = bytearray(len(block))
+    for i in range(len(block)):
+        decrypted[i] = block[i] ^ key[i % len(key)]
+    return decrypted
+
+def decrypt_file(key, input_file, output_file):
+    with open(input_file, "rb") as f:
         ciphertext = f.read()
-
-    padded_plaintext = decryptor.update(ciphertext) + decryptor.finalize()
-    unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
-    plaintext = unpadder.update(padded_plaintext) + unpadder.finalize()
-
-    output_path = file_path.replace(".enc", ".dec")
-    with open(output_path, 'wb') as f:
+    
+    plaintext = bytearray()
+    for i in range(0, len(ciphertext), 16):
+        block = ciphertext[i:i + 16]
+        decrypted_block = decrypt_block(block, key)
+        plaintext.extend(decrypted_block)
+    
+    plaintext = unpad(plaintext)
+    
+    with open(output_file, "wb") as f:
         f.write(plaintext)
 
-def decrypt_files_from_list(file_list_path, key, iv):
-    with open(file_list_path, "r") as f:
-        files = [line.strip() for line in f if line.strip()]
-        
-    for file_path in files:
-        enc_file = file_path + ".enc"
-        decrypt_file(enc_file, key, iv)
+def load_aes_key(filename="/home/hgawad/Desktop/coursework/aes_key.txt"):
+    with open(filename, "r") as key_file:
+        key = key_file.read().strip()
+    return key
 
-key, iv = load_key_and_iv(r"/home/hgawad/Desktop/coursework/aes_key.txt")
-decrypt_files_from_list(r"/home/hgawad/Desktop/coursework/files.log", key, iv)
-    
+encrypted_files_log = r"/home/hgawad/Desktop/coursework/encrypted_files.log"
+key = base64.b64decode(load_aes_key())
+
+with open(encrypted_files_log, "r") as log:
+    for line in log:
+        encrypted_file_path = line.strip()
+        original_extension_start = encrypted_file_path[:-4].rfind(".")
+        original_extension = encrypted_file_path[original_extension_start+1:-4]
+        decrypted_file_path = encrypted_file_path[:-4] + "." + original_extension
+        decrypt_file(key, encrypted_file_path, decrypted_file_path)
+        
+print("AES Decryption Done Successfully")
+
