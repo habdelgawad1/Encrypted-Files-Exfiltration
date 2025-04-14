@@ -10,7 +10,7 @@ SMTP_PORT = 587
 SMTP_USERNAME = "not.secure.mail123@gmail.com"
 SMTP_PASSWORD = "uvbd evoy dvoj teov"
 RECIPIENT_EMAIL = "hwsabdelgawad@gmail.com"
-ENCRYPTED_FILES_LOG = "/home/hgawad/Desktop/coursework/Encrypted_Files.log"  
+ENCRYPTED_FILES_LOG = "/home/hgawad/Desktop/coursework/encrypted_files.log"  
 
 def collect_encrypted_files(log_file):
     files=[]
