@@ -22,13 +22,13 @@ def encrypt_file(key, input_file, output_file):
     with open(output_file, "wb") as f:
         f.write(ciphertext)
 
-def load_aes_key(filename="/home/hgawad/Desktop/coursework/aes_key.txt"):
+def load_aes_key(filename=r"C:\Users\Test 1\Desktop\coursework\aes_key.txt"):
     with open(filename, "r") as key_file:
         key = key_file.read().strip()
     return key
     
-files_log = r"/home/hgawad/Desktop/coursework/files.log"
-encrypted_files_log = r"/home/hgawad/Desktop/coursework/encrypted_files.log"
+files_log = r'C:\Users\Test 1\Desktop\coursework\files.log'
+encrypted_files_log = r'C:\Users\Test 1\Desktop\coursework\encrypted_files.log'
 key = base64.b64decode(load_aes_key())  
 
 with open(encrypted_files_log, "w") as encrypted_log:

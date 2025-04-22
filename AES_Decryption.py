@@ -25,12 +25,12 @@ def decrypt_file(key, input_file, output_file):
     with open(output_file, "wb") as f:
         f.write(plaintext)
 
-def load_aes_key(filename="/home/hgawad/Desktop/coursework/aes_key.txt"):
+def load_aes_key(filename=r"C:\Users\Test 1\Desktop\coursework\aes_key.txt"):
     with open(filename, "r") as key_file:
         key = key_file.read().strip()
     return key
 
-encrypted_files_log = r"/home/hgawad/Desktop/coursework/encrypted_files.log"
+encrypted_files_log = r"C:\Users\Test 1\Desktop\coursework\encrypted_files.log"
 key = base64.b64decode(load_aes_key())
 
 with open(encrypted_files_log, "r") as log:
@@ -42,4 +42,3 @@ with open(encrypted_files_log, "r") as log:
         decrypt_file(key, encrypted_file_path, decrypted_file_path)
         
 print("AES Decryption Done Successfully")
-
